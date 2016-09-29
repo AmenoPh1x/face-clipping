@@ -1,0 +1,130 @@
+<!doctype html>
+<html>
+<head>
+  <title>TEST HTML5 CANVAS CLIPPING</title>
+  <style>
+    #video {
+      transform: rotateY(180deg);
+      -webkit-transform:rotateY(180deg); /* Safari and Chrome */
+      -moz-transform:rotateY(180deg);
+      width:1920px;
+      height:1080px;
+      position:absolute;
+      top:0;
+      left:0;
+    }
+    #canvas {
+      background-color:white;
+      width:1920px;
+      height:1080px;
+      position:absolute;
+      top:0;
+      left:0;
+      z-index:1;
+    }
+    .hidden{
+      display:none;
+    }
+  </style>
+</head>
+<body>
+  <video id="video"></video>
+  <canvas id="canvas" class="hidden"></canvas>
+  <script>
+(function() {
+
+  function takePicture() {
+    var data = canvas.toDataURL('image/png');
+    var photo = new Image();
+    photo.setAttribute('src', data);
+
+    canvas.setAttribute('class', '');
+
+    video.pause();
+    //context.drawImage(video, 0, 0);
+
+
+/*
+    // Draw the path that is going to be clipped
+    context.beginPath();
+    context.moveTo(0, 0);
+    context.lineTo(600, 300);
+    context.lineTo(500, 200);
+
+    //Close the Path, do not need to line to origin
+    context.closePath();
+    // Don't stroke or fill it
+
+    // Now clip() the canvas
+    context.clip();
+
+    //Draw image with the clipping applied
+    //context.drawImage(photo, 0, 0);
+    context.drawImage(video, 0, 0);
+*/
+  }
+
+  var streaming = false;
+  var width = 0;
+  var height = 0;
+  var video = document.getElementById('video');
+  var context = document.getElementById("canvas").getContext('2d');
+  //Cross browser fixes
+  navigator.getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia || navigator.mozGetUserMedia || navigator.msGetUserMedia;
+  window.URL = window.URL || window.webkitURL || window.mozURL || window.msURL;
+  if (navigator.getUserMedia) { //Check the access to media
+    // Not adding { audio: true } since we only want video now
+    navigator.mediaDevices.getUserMedia({
+        video: true,
+        audio: false
+      }).then(function(stream) {
+        if (navigator.mozGetUserMedia) {
+          video.mozSrcObject = stream;
+        } else {
+          var vendorURL = window.URL || window.webkitURL;
+          video.src = vendorURL.createObjectURL(stream);
+        }
+        video.play();
+      }
+    );
+  } else {
+    console.error('User media not allowed in this broser.');
+  }
+
+  video.addEventListener('canplay', function(event) {
+     if (!streaming) {
+        width = video.videoWidth;
+        height = video.videoHeight;
+        canvas.setAttribute('width', width);
+        canvas.setAttribute('height', height);
+        streaming = true;
+        setTimeout(takePicture, 3000);
+     }
+   }, false);
+
+})();
+
+/*
+
+  var selectInterval = null;
+
+  var points = new Array();
+
+  var img = new Image();
+
+  function takePicture () {
+
+  }
+
+  function endSelection () {
+
+  }
+
+  function startSelection () {
+    //selectInterval
+    console.log('START SELECTION, SET INTERVAL');
+  }
+*/
+  </script>
+</body>
+</html>
